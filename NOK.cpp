@@ -4,11 +4,12 @@ using namespace std;
 
 
 long long NOD(long long a, long long b) {
-	return b == 0 ? a : NOD(b, a % b);
+	if (b == 0) return a;
+        return NOD(b, a % b);
 }
 
 long long NOK(long long m, long long n) {
-	return (m * n) / NOD(m, n);
+	return m / NOD(m, n) * n;
 }
 
 int main() {
