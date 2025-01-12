@@ -176,7 +176,7 @@ int main() {
     vector<int> n = stringToVector(strN);
     vector<int> result = lcm(m, n);
 
-    cout << "Наименьшее общее кратное m = " << strM << " и " << "n = " << strN << " равен: ";
+    cout << "Наименьшее общее кратное m = " << strM << " и " << "n = " << strN << " равно: ";
     printVector(result);
 
     return 0;
