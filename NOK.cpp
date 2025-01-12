@@ -155,7 +155,7 @@ int main() {
             cout << "Ошибка: Введите корректное число.\n";
         }
         else if (!isAtLeast10To11(strM)) {
-            cout << "Ошибка: Число должно быть >= 10^11.\n";
+            cout << "Ошибка: Число m должно быть >= 10^11.\n";
         }
     } while (!isValidNumber(strM) || !isAtLeast10To11(strM));
 
@@ -167,7 +167,7 @@ int main() {
             cout << "Ошибка: Введите корректное число.\n";
         }
         else if (!isAtLeast10To11(strN)) {
-            cout << "Ошибка: Число должно быть >= 10^11.\n";
+            cout << "Ошибка: Число n должно быть >= 10^11.\n";
         }
     } while (!isValidNumber(strN) || !isAtLeast10To11(strN));
 
