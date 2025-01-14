@@ -1,129 +1,142 @@
-#include "modylNOK.h"
-#include <algorithm>
-#include <iostream>
+#include "modylNOK.h" // Подключение пользовательского заголовочного файла, содержащего прототипы функций для работы с большими числами
+#include <algorithm> // Подключение стандартной библиотеки алгоритмов для использования функций, таких как std::all_of, std::sort, std::swap и других
 
-// Функция для преобразования строки в вектор цифр
-vector<int> stringToVector(const string& str) {
-    vector<int> result;
-    for (char ch : str) {
-        result.push_back(ch - '0'); // Преобразуем каждый символ в цифру и добавляем в вектор
+// Функция для умножения больших чисел в строковом формате
+string multiply(const string& num1, const string& num2) {
+    int len1 = num1.size();  // Длина первого числа
+    int len2 = num2.size();  // Длина второго числа
+    string result(len1 + len2, '0');  // Резервируем место для результата
+
+    // Обходим каждую цифру первого числа
+    for (int i = len1 - 1; i >= 0; --i) {
+        int carry = 0;  // Перенос для следующей итерации
+        // Обходим каждую цифру второго числа
+        for (int j = len2 - 1; j >= 0; --j) {
+            // Умножаем текущие цифры и добавляем к результату с учетом переноса
+            int product = (num1[i] - '0') * (num2[j] - '0') + (result[i + j + 1] - '0') + carry;
+            carry = product / 10;  // Перенос на следующую позицию
+            result[i + j + 1] = (product % 10) + '0';  // Оставшаяся часть числа
+        }
+        result[i] += carry;  // Учитываем остаточный перенос после завершения умножения текущей пары цифр
     }
-    return result;
+
+    // Удаление ведущих нулей
+    size_t pos = result.find_first_not_of('0');
+    return (pos != string::npos) ? result.substr(pos) : "0";  // Возвращаем результат без ведущих нулей
 }
 
-//  Функция для проверки, что строка содержит только цифры
+// Функция для деления больших чисел в строковом формате
+string divide(const string& num, const string& divisor) {
+    string result;  // Результат деления
+    string current;  // Текущая часть числа
+
+    // Обходим каждую цифру в числе
+    for (char digit : num) {
+        current.push_back(digit);  // Добавляем текущую цифру к текущему числу
+
+        // Удаляем ведущие нули, если они есть
+        while (current.size() > 1 && current[0] == '0') {
+            current.erase(current.begin());
+        }
+
+        int count = 0;  // Количество раз, когда деление возможно
+        // Проверяем, может ли current быть делимым на divisor
+        while (compare(current, divisor) >= 0) {
+            current = subtract(current, divisor);  // Вычитаем divisor из current
+            ++count;  // Увеличиваем счетчик
+        }
+
+        result.push_back(count + '0');  // Добавляем результат деления к итоговому результату
+    }
+
+    // Убираем ведущие нули из результата
+    size_t pos = result.find_first_not_of('0');
+    return (pos != string::npos) ? result.substr(pos) : "0";  // Возвращаем результат без ведущих нулей
+}
+
+// Функция для сравнения двух больших чисел в строковом формате
+int compare(const string& num1, const string& num2) {
+    // Сравниваем длины строк
+    if (num1.size() != num2.size()) {
+        return num1.size() > num2.size() ? 1 : -1;  // Если длины разные, возвращаем результат
+    }
+
+    // Сравниваем строки по символам
+    for (size_t i = 0; i < num1.size(); ++i) {
+        if (num1[i] != num2[i]) {
+            return num1[i] > num2[i] ? 1 : -1;  // Если символы различаются, возвращаем результат сравнения
+        }
+    }
+
+    return 0;  // Если строки равны
+}
+
+// Функция для вычитания больших чисел в строковом формате
+string subtract(const string& num1, const string& num2) {
+    string result = num1;  // Копируем первую строку в результат
+    int borrow = 0;  // Переменная для учета заимствований
+
+    // Обходим строки с конца
+    for (int i = num1.size() - 1, j = num2.size() - 1; i >= 0; --i, --j) {
+        int diff = (result[i] - '0') - borrow - (j >= 0 ? (num2[j] - '0') : 0);  // Вычисляем разницу
+
+        if (diff < 0) {  // Если разница отрицательная, то нужно заимствовать у предыдущей цифры
+            diff += 10;
+            borrow = 1;  // Увеличиваем заимствование
+        }
+        else {
+            borrow = 0;  // Если разница положительная, то заимствование равно нулю
+        }
+        result[i] = diff + '0';  // Устанавливаем разницу как текущую цифру результата
+    }
+
+    // Удаляем ведущие нули
+    size_t pos = result.find_first_not_of('0');
+    return (pos != string::npos) ? result.substr(pos) : "0";  // Возвращаем результат без ведущих нулей
+}
+
+// Функция для нахождения наибольшего общего делителя (НОД) больших чисел в строковом формате
+string gcd(string a, string b) {
+    // Пока b не равно "0"
+    while (b != "0") {
+        // Вычитаем из a разность a и (a // b) * b
+        a = subtract(a, multiply(divide(a, b), b));
+
+        // Меняем местами a и b
+        swap(a, b);
+    }
+    return a;  // Возвращаем результат, когда b становится "0"
+}
+
+// Функция для нахождения наименьшего общего кратного (НОК) больших чисел в строковом формате
+string lcm(const string& a, const string& b) {
+    // Находим НОД двух чисел
+    string gcd_result = gcd(a, b);
+
+    // Делим первое число на НОД
+    string temp = divide(a, gcd_result);
+
+    // Умножаем результат деления на второе число, чтобы получить НОК
+    return multiply(temp, b);
+}
+
+// Функция для проверки, является ли строка корректным числом
 bool isValidNumber(const string& str) {
-    return !str.empty() && all_of(str.begin(), str.end(), ::isdigit); // Проверяем, что строка состоит только из цифр
+    // Проверяем, что строка не пустая
+    if (str.empty()) {
+        return false;  // Пустая строка не является корректным числом
+    }
+
+    // Проверяем, что каждый символ в строке является цифрой
+    return all_of(str.begin(), str.end(), ::isdigit);
 }
 
 // Функция для проверки, что число >= 10^11
 bool isAtLeast10To11(const string& str) {
-    if (str.length() > 12) return true; // Длина больше 12 гарантирует >= 10^11
-    if (str.length() < 12) return false; // Длина меньше 12 гарантирует < 10^11
-    return str >= "100000000000"; // Сравниваем строку
-}
-
-// Функция для умножения больших чисел (вектор на вектор)
-vector<int> multiply(const vector<int>& num1, const vector<int>& num2) {
-    vector<int> result(num1.size() + num2.size(), 0); // Результат имеет размер суммы длин двух векторов
-    for (int i = num1.size() - 1; i >= 0; --i) {
-        int carry = 0;
-        for (int j = num2.size() - 1; j >= 0; --j) {
-            int product = num1[i] * num2[j] + result[i + j + 1] + carry;
-            result[i + j + 1] = product % 10; // Остаток от деления на 10 (разряд в результате)
-            carry = product / 10; // Перенос в следующую разряд
-        }
-        result[i] += carry; // Добавляем остаток из carry
-    }
-    while (result.size() > 1 && result[0] == 0) {
-        result.erase(result.begin()); // Удаляем ведущие нули
-    }
-    return result;
-}
-
-// Функция для деления одного большого числа на другое (приблизительное деление)
-vector<int> divide(const vector<int>& num, const vector<int>& divisor) {
-    vector<int> result; // Результат деления
-    vector<int> current;
-
-    for (size_t i = 0; i < num.size(); ++i) {
-        current.push_back(num[i]); // Постепенно добавляем цифры из num
-        while (current.size() > 1 && current[0] == 0) {
-            current.erase(current.begin()); // Удаляем ведущие нули
-        }
-
-        int count = 0;
-        while (compare(current, divisor) >= 0) {
-            current = subtract(current, divisor); // Вычитаем делитель из текущего остатка
-            ++count;
-        }
-        result.push_back(count); // Добавляем количество целых частей
-    }
-
-    while (result.size() > 1 && result[0] == 0) {
-        result.erase(result.begin()); // Удаляем ведущие нули
-    }
-
-    return result;
-}
-
-// Функция для сравнения двух больших чисел
-int compare(const vector<int>& num1, const vector<int>& num2) {
-    if (num1.size() != num2.size()) {
-        return num1.size() > num2.size() ? 1 : -1; // Сравниваем размеры векторов
-    }
-    for (size_t i = 0; i < num1.size(); ++i) {
-        if (num1[i] != num2[i]) {
-            return num1[i] > num2[i] ? 1 : -1;  // Сравниваем цифры
-        }
-    }
-    return 0;
-}
-
-// Функция для вычитания двух больших чисел
-vector<int> subtract(const vector<int>& num1, const vector<int>& num2) {
-    vector<int> result(num1); // Копируем первое число в результат
-    int borrow = 0; // Займ для вычитания
-
-    for (int i = num1.size() - 1, j = num2.size() - 1; i >= 0; --i, --j) {
-        int diff = result[i] - borrow - (j >= 0 ? num2[j] : 0);
-        if (diff < 0) {
-            diff += 10;
-            borrow = 1; // Если разница отрицательная, добавляем перенос
-        }
-        else {
-            borrow = 0;  // В противном случае перенос не нужен
-        }
-        result[i] = diff; // Записываем результат
-    }
-
-    while (result.size() > 1 && result[0] == 0) {
-        result.erase(result.begin()); // Удаляем ведущие нули
-    }
-
-    return result;
-}
-
-//  Функция для нахождения НОД двух чисел
-vector<int> gcd(vector<int> a, vector<int> b) {
-    while (!(b.size() == 1 && b[0] == 0)) {
-        a = subtract(a, multiply(divide(a, b), b)); // Находим остаток от деления
-        swap(a, b);  // Меняем значения
-    }
-    return a;
-}
-
-// Функция для нахождения НОК двух чисел
-vector<int> lcm(const vector<int>& a, const vector<int>& b) {
-    vector<int> gcd_result = gcd(a, b);
-    vector<int> temp = divide(a, gcd_result);
-    return multiply(temp, b);
-}
-
-//  Функция для вывода числа
-void printVector(const vector<int>& num) {
-    for (int digit : num) {
-        cout << digit;
-    }
-    cout << endl;
+    // Если длина строки больше 12, то число гарантированно больше 10^11
+    if (str.length() > 12) return true;
+    // Если длина строки меньше 12, то число гарантированно меньше 10^11
+    if (str.length() < 12) return false;
+    // Если длина строки равна 12, сравниваем строку с "100000000000"
+    return str >= "100000000000";
 }
