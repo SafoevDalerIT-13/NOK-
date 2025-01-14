@@ -1,5 +1,5 @@
-#include "modylNOK.h"
-#include <iostream>
+#include "modylNOK.h"  // Подключение пользовательского заголовочного файла, содержащего прототипы функций для работы с большими числами
+#include <iostream>    // Подключение стандартной библиотеки ввода-вывода для работы с консолью
 
 using namespace std;
 
@@ -10,7 +10,9 @@ using namespace std;
 
 int main() {
     setlocale(LC_ALL, "RU"); // Устанавливаем локализацию для вывода сообщений на русском языке.
+
     string strM, strN;
+
     // Приветствие и вводные сообщения
     cout << "Здравствуйте! Эта программа вычисляет НОК чисел m и n (m, n >= 10^11)." << endl << endl;
 
@@ -26,7 +28,7 @@ int main() {
         else if (!isAtLeast10To11(strM)) {
             cout << "Ошибка: Число m должно быть >= 10^11.\n";
         }
-    } while (!isValidNumber(strM) || !isAtLeast10To11(strM));  // Повторяем, пока ввод некорректен
+    } while (!isValidNumber(strM) || !isAtLeast10To11(strM)); // Повторяем, пока ввод некорректен
 
     // Цикл ввода второго числа с проверкой
     do {
@@ -38,20 +40,14 @@ int main() {
         }
         // Проверка на соответствие условию: число >= 10^11
         else if (!isAtLeast10To11(strN)) {
-            cout << "Ошибка: Число n должно быть >= 10^11.\n";
+            cout << "Ошибка: Число n должно быть >= 10^11.\n"; // Повторяем, пока ввод некорректен
         }
-    } while (!isValidNumber(strN) || !isAtLeast10To11(strN));  // Повторяем, пока ввод некорректен
+    } while (!isValidNumber(strN) || !isAtLeast10To11(strN)); // Повторяем, пока ввод некорректен
 
-    // Преобразование введенных строк в вектор цифр
-    vector<int> m = stringToVector(strM);
-    vector<int> n = stringToVector(strN);
-
-    // Вычисление НОК двух чисел
-    vector<int> result = lcm(m, n);
+    // Преобразование и расчет НОК
+    string result = lcm(strM, strN);
 
     // Вывод результата
-    cout << "Наименьшее общее кратное m = " << strM << " и n = " << strN << " равно: ";
-    printVector(result);
-
-    return 0; // Завершение программы
+    cout << "Наименьшее общее кратное m = " << strM << " и n = " << strN << " равно: " << result << endl;
+    return 0;
 }
